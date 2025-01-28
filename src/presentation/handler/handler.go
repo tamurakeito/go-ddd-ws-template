@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"go-ddd-ws-template/application/usecase"
+	"go-ddd-ws-template/src/application/usecase"
 
 	"github.com/labstack/echo"
 )

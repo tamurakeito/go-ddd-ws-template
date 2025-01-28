@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"go-ddd-ws-template/injector"
-	"go-ddd-ws-template/presentation"
+	"go-ddd-ws-template/src/injector"
+	"go-ddd-ws-template/src/presentation"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"

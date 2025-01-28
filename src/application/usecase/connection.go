@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"go-ddd-ws-template/domain/repository"
+	"go-ddd-ws-template/src/domain/repository"
 
 	"github.com/labstack/echo"
 )

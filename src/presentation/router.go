@@ -1,7 +1,7 @@
 package presentation
 
 import (
-	"go-ddd-ws-template/presentation/handler"
+	"go-ddd-ws-template/src/presentation/handler"
 
 	"github.com/labstack/echo"
 )

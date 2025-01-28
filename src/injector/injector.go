@@ -1,10 +1,10 @@
 package injector
 
 import (
-	"go-ddd-ws-template/application/usecase"
-	"go-ddd-ws-template/domain/repository"
-	"go-ddd-ws-template/infrastructure"
-	"go-ddd-ws-template/presentation/handler"
+	"go-ddd-ws-template/src/application/usecase"
+	"go-ddd-ws-template/src/domain/repository"
+	"go-ddd-ws-template/src/infrastructure"
+	"go-ddd-ws-template/src/presentation/handler"
 
 	"github.com/gorilla/websocket"
 )

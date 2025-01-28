@@ -1,7 +1,7 @@
 package infrastructure
 
 import (
-	"go-ddd-ws-template/domain/repository"
+	"go-ddd-ws-template/src/domain/repository"
 	"log"
 
 	"github.com/labstack/echo"
