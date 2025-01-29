@@ -1,15 +1,16 @@
 package usecase
 
 import (
-	"go-ddd-ws-template/src/infrastructure"
 	"go-ddd-ws-template/src/domain/repository"
 	"log"
 
 	"github.com/gorilla/websocket"
+	"github.com/labstack/echo"
 )
 
 type ConnectionUsecase interface {
-	HandleConnection(server *infrastructure.Server, conn *websocket.Conn) error
+	UpgradeProtocol(c echo.Context) (conn *websocket.Conn, err error)
+	ManageClient(conn *websocket.Conn) error
 }
 
 type connectionUsecase struct {
@@ -20,22 +21,25 @@ func NewConnectionUsecase(connectionRepo repository.ConnectionRepository) Connec
 	connectionUsecase := connectionUsecase{connectionRepo: connectionRepo}
 	return &connectionUsecase
 }
-
-func (u *connectionUsecase) HandleConnection(server *infrastructure.Server, conn *websocket.Conn) error {
+func (u *connectionUsecase) UpgradeProtocol(c echo.Context) (conn *websocket.Conn, err error) {
+	conn, err = u.connectionRepo.UpgradeProtocol(c)
+	return
+}
+func (u *connectionUsecase) ManageClient(conn *websocket.Conn) error {
 	// クライアントを追加
-	u.connectionRepo.AddClient(server, conn)
+	u.connectionRepo.AddClient(conn)
 	log.Println("New client connected")
 
 	// クライアントからのメッセージを受信してブロードキャスト
 	for {
-		err := u.connectionRepo.HandleMessage(server, conn)
+		err := u.connectionRepo.HandleMessage(conn)
 		if err != nil {
 			break
 		}
 	}
 
 	// クライアントを削除
-	u.connectionRepo.RemoveClient(server, conn)
+	u.connectionRepo.RemoveClient(conn)
 	log.Println("Client disconnected")
 	return nil
 }

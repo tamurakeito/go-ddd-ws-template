@@ -15,7 +15,7 @@ type Server struct {
 }
 
 func NewServer() *Server {
-	return &Server{
+	server := Server{
 		Clients: make(map[*websocket.Conn]bool),
 		Upgrader: websocket.Upgrader{
 			CheckOrigin: func(r *http.Request) bool {
@@ -23,6 +23,7 @@ func NewServer() *Server {
 			},
 		},
 	}
+	return &server
 }
 
 func (s *Server) BroadcastMessage(sender *websocket.Conn, message string) {

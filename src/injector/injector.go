@@ -2,13 +2,19 @@ package injector
 
 import (
 	"go-ddd-ws-template/src/domain/repository"
-	infrastructure "go-ddd-ws-template/src/infrastructure/repository_impl"
+	"go-ddd-ws-template/src/infrastructure"
+	repository_impl "go-ddd-ws-template/src/infrastructure/repository_impl"
 	"go-ddd-ws-template/src/presentation/handler"
 	"go-ddd-ws-template/src/usecase"
 )
 
+func InjectServer() infrastructure.Server {
+	return *infrastructure.NewServer()
+}
+
 func InjectConnectionRepository() repository.ConnectionRepository {
-	return infrastructure.NewConnectionRepository()
+	server := InjectServer()
+	return repository_impl.NewConnectionRepository(&server)
 }
 
 func InjectConnectionUsecase() usecase.ConnectionUsecase {
