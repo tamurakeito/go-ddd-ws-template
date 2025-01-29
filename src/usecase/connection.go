@@ -28,19 +28,13 @@ func (u *connectionUsecase) HandleConnection(server *core.Server, conn *websocke
 
 	// クライアントからのメッセージを受信してブロードキャスト
 	for {
-		_, message, err := conn.ReadMessage()
+		err := u.connectionRepo.HandleMessage(server, conn)
 		if err != nil {
-			log.Printf("Error reading message: %v", err)
 			break
 		}
-		log.Printf("Received message: %s", message)
-		server.BroadcastMessage(conn, string(message))
 	}
 
 	// クライアントを削除
-	// server.Mutex.Lock()
-	// delete(server.Clients, conn)
-	// server.Mutex.Unlock()
 	u.connectionRepo.RemoveClient(server, conn)
 	log.Println("Client disconnected")
 	return nil

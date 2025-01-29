@@ -3,6 +3,7 @@ package infrastructure
 import (
 	"go-ddd-ws-template/src/core"
 	"go-ddd-ws-template/src/repository"
+	"log"
 
 	"github.com/gorilla/websocket"
 )
@@ -26,13 +27,13 @@ func (repo *ConnectionRepository) RemoveClient(server *core.Server, conn *websoc
 	server.Mutex.Unlock()
 }
 
-// func (repo *ConnectionRepository) BroadcastMessage(server *core.Server, sender *websocket.Conn, message string) {
-// 	server.Mutex.Lock()
-// 	defer server.Mutex.Unlock()
-
-// 	for client := range server.Clients {
-// 		if client != sender {
-// 			client.WriteMessage(websocket.TextMessage, []byte(message))
-// 		}
-// 	}
-// }
+func (repo *ConnectionRepository) HandleMessage(server *core.Server, conn *websocket.Conn) (err error) {
+	_, message, err := conn.ReadMessage()
+	if err != nil {
+		log.Printf("Error reading message: %v", err)
+		return
+	}
+	log.Printf("Received message: %s", message)
+	server.BroadcastMessage(conn, string(message))
+	return
+}
