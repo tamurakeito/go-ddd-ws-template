@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"go-ddd-ws-template/src/injector"
-	"go-ddd-ws-template/src/presentation"
+	"log"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -11,15 +11,20 @@ import (
 
 func main() {
 	fmt.Println("server start")
+	httpHandler := injector.InjectHttpHandler()
 
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	// WebSocketサーバーを初期化
-	connectionHandler := injector.InjectConnectionHandler()
+	// server := NewServer()
 
-	// WebSocketのエンドポイントを設定
-	presentation.InitRouting(e, connectionHandler)
-	e.Logger.Fatal(e.Start(":8080"))
+	// e.GET("/ws", func(c echo.Context) error {
+	// 	return server.HandleConnections(c)
+	// })
+	e.GET("/ws", httpHandler.LinkConnection())
+
+	port := ":8080"
+	log.Printf("WebSocket server is running on http://localhost%s/ws", port)
+	e.Logger.Fatal(e.Start(port))
 }

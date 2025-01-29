@@ -1,51 +1,38 @@
 package infrastructure
 
 import (
-	"go-ddd-ws-template/src/domain/repository"
-	"log"
+	"go-ddd-ws-template/src/core"
+	"go-ddd-ws-template/src/repository"
 
-	"github.com/labstack/echo"
+	"github.com/gorilla/websocket"
 )
 
-type ConnectionRepository struct {
-	*Server
-}
+type ConnectionRepository struct{}
 
-func NewConnectionRepository(server *Server) repository.ConnectionRepository {
-	connectionRepository := ConnectionRepository{server}
+func NewConnectionRepository() repository.ConnectionRepository {
+	connectionRepository := ConnectionRepository{}
 	return &connectionRepository
 }
 
-func (repo *ConnectionRepository) HandleConnections(c echo.Context) error {
-
-	// HTTP接続をWebSocketにアップグレード
-	conn, err := repo.Server.Upgrader.Upgrade(c.Response(), c.Request(), nil)
-	if err != nil {
-		log.Printf("Error upgrading to WebSocket: %v", err)
-		return err
-	}
-	defer conn.Close() // 接続が終了したらクリーンアップ
-
-	// 新しいクライアントをマップに追加
-	repo.Server.repository.AddClient(conn)
-	defer repo.Server.repository.RemoveClient(conn)
-	// 	repo.Server.Mutex.Lock()
-	// 	repo.Server.Clients[conn] = true
-	// 	repo.Server.Mutex.Unlock()
-	log.Println("New client connected")
-
-	// クライアントからのメッセージを受信し続けるループ
-	for {
-		_, message, err := conn.ReadMessage()
-		if err != nil {
-			log.Printf("Error reading message: %v", err)
-			break // エラーが発生した場合はループを終了
-		}
-		log.Printf("Received message: %s", message)
-		// メッセージを他のクライアントにブロードキャスト
-		repo.Server.repository.BroadcastMessage(conn, string(message))
-	}
-
-	log.Println("Client disconnected")
-	return nil
+func (repo *ConnectionRepository) AddClient(server *core.Server, conn *websocket.Conn) {
+	server.Mutex.Lock()
+	server.Clients[conn] = true
+	server.Mutex.Unlock()
 }
+
+func (repo *ConnectionRepository) RemoveClient(server *core.Server, conn *websocket.Conn) {
+	server.Mutex.Lock()
+	delete(server.Clients, conn)
+	server.Mutex.Unlock()
+}
+
+// func (repo *ConnectionRepository) BroadcastMessage(server *core.Server, sender *websocket.Conn, message string) {
+// 	server.Mutex.Lock()
+// 	defer server.Mutex.Unlock()
+
+// 	for client := range server.Clients {
+// 		if client != sender {
+// 			client.WriteMessage(websocket.TextMessage, []byte(message))
+// 		}
+// 	}
+// }

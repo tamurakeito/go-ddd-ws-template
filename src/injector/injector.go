@@ -1,24 +1,14 @@
 package injector
 
 import (
-	"go-ddd-ws-template/src/application/usecase"
-	"go-ddd-ws-template/src/domain/repository"
 	"go-ddd-ws-template/src/infrastructure"
 	"go-ddd-ws-template/src/presentation/handler"
-
-	"github.com/gorilla/websocket"
+	"go-ddd-ws-template/src/repository"
+	"go-ddd-ws-template/src/usecase"
 )
 
-func InjectServer() infrastructure.Server {
-	repo := &infrastructure.MessageRepository{
-		Clients: make(map[*websocket.Conn]bool),
-	}
-	return *infrastructure.NewServer(repo)
-}
-
 func InjectConnectionRepository() repository.ConnectionRepository {
-	server := InjectServer()
-	return infrastructure.NewConnectionRepository(&server)
+	return infrastructure.NewConnectionRepository()
 }
 
 func InjectConnectionUsecase() usecase.ConnectionUsecase {
@@ -26,6 +16,6 @@ func InjectConnectionUsecase() usecase.ConnectionUsecase {
 	return usecase.NewConnectionUsecase(connectionRepo)
 }
 
-func InjectConnectionHandler() handler.ConnectionHandler {
-	return handler.NewConnectionHandler(InjectConnectionUsecase())
+func InjectHttpHandler() handler.HttpHandler {
+	return handler.NewHttpHandler(InjectConnectionUsecase())
 }
