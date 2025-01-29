@@ -4,13 +4,11 @@ import (
 	"go-ddd-ws-template/src/domain/repository"
 	"log"
 
-	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
 )
 
 type ConnectionUsecase interface {
-	UpgradeProtocol(c echo.Context) (conn *websocket.Conn, err error)
-	ManageClient(conn *websocket.Conn) error
+	HandleConnection(c echo.Context) error
 }
 
 type connectionUsecase struct {
@@ -21,14 +19,17 @@ func NewConnectionUsecase(connectionRepo repository.ConnectionRepository) Connec
 	connectionUsecase := connectionUsecase{connectionRepo: connectionRepo}
 	return &connectionUsecase
 }
-func (u *connectionUsecase) UpgradeProtocol(c echo.Context) (conn *websocket.Conn, err error) {
-	conn, err = u.connectionRepo.UpgradeProtocol(c)
-	return
-}
-func (u *connectionUsecase) ManageClient(conn *websocket.Conn) error {
+func (u *connectionUsecase) HandleConnection(c echo.Context) error {
+	conn, err := u.connectionRepo.UpgradeProtocol(c)
+	if err != nil {
+		log.Printf("Error upgrading to WebSocket: %v", err) // アップグレード失敗時にエラーログを記録
+		return err                                          // エラーを返して処理を中断
+	}
+	defer conn.Close()
+
 	// クライアントを追加
 	u.connectionRepo.AddClient(conn)
-	log.Println("New client connected")
+	log.Println("New clent connected")
 
 	// クライアントからのメッセージを受信してブロードキャスト
 	for {

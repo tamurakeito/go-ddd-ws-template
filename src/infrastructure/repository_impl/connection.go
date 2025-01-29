@@ -21,10 +21,6 @@ func NewConnectionRepository(server *infrastructure.Server) repository.Connectio
 // HTTP接続をWebSocket接続にアップグレード
 func (repo *ConnectionRepository) UpgradeProtocol(c echo.Context) (conn *websocket.Conn, err error) {
 	conn, err = repo.server.Upgrader.Upgrade(c.Response(), c.Request(), nil)
-	if err != nil {
-		log.Printf("Error upgrading to WebSocket: %v", err) // アップグレード失敗時にエラーログを記録
-		return                                              // エラーを返して処理を中断
-	}
 	return
 }
 
