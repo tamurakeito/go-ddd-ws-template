@@ -1,9 +1,9 @@
 package injector
 
 import (
-	"go-ddd-ws-template/src/infrastructure"
+	"go-ddd-ws-template/src/domain/repository"
+	infrastructure "go-ddd-ws-template/src/infrastructure/repository_impl"
 	"go-ddd-ws-template/src/presentation/handler"
-	"go-ddd-ws-template/src/repository"
 	"go-ddd-ws-template/src/usecase"
 )
 

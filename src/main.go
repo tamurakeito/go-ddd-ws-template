@@ -17,12 +17,7 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	// server := NewServer()
-
-	// e.GET("/ws", func(c echo.Context) error {
-	// 	return server.HandleConnections(c)
-	// })
-	e.GET("/ws", httpHandler.LinkConnection())
+	e.GET("/ws", httpHandler.HandleConnection())
 
 	port := ":8080"
 	log.Printf("WebSocket server is running on http://localhost%s/ws", port)

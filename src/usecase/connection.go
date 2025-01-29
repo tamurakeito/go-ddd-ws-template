@@ -1,15 +1,15 @@
 package usecase
 
 import (
-	"go-ddd-ws-template/src/core"
-	"go-ddd-ws-template/src/repository"
+	"go-ddd-ws-template/src/infrastructure"
+	"go-ddd-ws-template/src/domain/repository"
 	"log"
 
 	"github.com/gorilla/websocket"
 )
 
 type ConnectionUsecase interface {
-	HandleConnection(server *core.Server, conn *websocket.Conn) error
+	HandleConnection(server *infrastructure.Server, conn *websocket.Conn) error
 }
 
 type connectionUsecase struct {
@@ -21,7 +21,7 @@ func NewConnectionUsecase(connectionRepo repository.ConnectionRepository) Connec
 	return &connectionUsecase
 }
 
-func (u *connectionUsecase) HandleConnection(server *core.Server, conn *websocket.Conn) error {
+func (u *connectionUsecase) HandleConnection(server *infrastructure.Server, conn *websocket.Conn) error {
 	// クライアントを追加
 	u.connectionRepo.AddClient(server, conn)
 	log.Println("New client connected")
