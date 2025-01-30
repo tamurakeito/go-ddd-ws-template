@@ -8,7 +8,7 @@ import (
 )
 
 type ConnectionUsecase interface {
-	HandleConnection(c echo.Context) error
+	HandleConnection(c echo.Context) (err error)
 }
 
 type connectionUsecase struct {
@@ -19,28 +19,33 @@ func NewConnectionUsecase(connectionRepo repository.ConnectionRepository) Connec
 	connectionUsecase := connectionUsecase{connectionRepo: connectionRepo}
 	return &connectionUsecase
 }
+
 func (u *connectionUsecase) HandleConnection(c echo.Context) error {
-	conn, err := u.connectionRepo.UpgradeProtocol(c)
+	client, err := u.connectionRepo.UpgradeProtocol(c)
 	if err != nil {
 		log.Printf("Error upgrading to WebSocket: %v", err) // アップグレード失敗時にエラーログを記録
-		return err                                          // エラーを返して処理を中断
+		return ErrUpgradeProtocol                           // エラーを返して処理を中断
 	}
-	defer conn.Close()
+	defer client.Close()
 
 	// クライアントを追加
-	u.connectionRepo.AddClient(conn)
+	u.connectionRepo.AddClient(client)
 	log.Println("New clent connected")
 
 	// クライアントからのメッセージを受信してブロードキャスト
 	for {
-		err := u.connectionRepo.HandleMessage(conn)
+		err = u.connectionRepo.HandleMessage(client)
 		if err != nil {
 			break
 		}
 	}
 
 	// クライアントを削除
-	u.connectionRepo.RemoveClient(conn)
+	u.connectionRepo.RemoveClient(client)
 	log.Println("Client disconnected")
-	return nil
+	if err != nil {
+		return ErrHandleMessage
+	} else {
+		return nil
+	}
 }

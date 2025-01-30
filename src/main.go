@@ -19,7 +19,7 @@ func main() {
 
 	e.GET("/ws", httpHandler.HandleConnection())
 
-	port := ":8080"
+	port := ":8081"
 	log.Printf("WebSocket server is running on http://localhost%s/ws", port)
 	e.Logger.Fatal(e.Start(port))
 }
