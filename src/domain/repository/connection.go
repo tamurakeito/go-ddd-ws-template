@@ -7,8 +7,8 @@ import (
 )
 
 type ConnectionRepository interface {
-	UpgradeProtocol(c echo.Context) (client entity.ClientInterface, err error)
-	AddClient(client entity.ClientInterface)
-	RemoveClient(client entity.ClientInterface)
-	HandleMessage(client entity.ClientInterface) (err error)
+	UpgradeProtocol(c echo.Context) (client entity.Client, err error)
+	AddClient(client entity.Client)
+	RemoveClient(client entity.Client)
+	HandleMessage(client entity.Client) (err error)
 }

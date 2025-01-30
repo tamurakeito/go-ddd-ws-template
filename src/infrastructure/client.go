@@ -11,7 +11,7 @@ type Client struct {
 	conn *websocket.Conn
 }
 
-func NewClient(conn *websocket.Conn) entity.ClientInterface {
+func NewClient(conn *websocket.Conn) entity.Client {
 	return &Client{conn: conn}
 }
 
