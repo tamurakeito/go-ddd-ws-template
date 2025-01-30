@@ -1,11 +1,11 @@
 package infrastructure
 
 import (
+	"go-ddd-ws-template/src/domain/entity"
 	"go-ddd-ws-template/src/domain/repository"
 	"go-ddd-ws-template/src/infrastructure"
 	"log"
 
-	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
 )
 
@@ -18,31 +18,31 @@ func NewConnectionRepository(server *infrastructure.Server) repository.Connectio
 	return &connectionRepository
 }
 
-// HTTP接続をWebSocket接続にアップグレード
-func (repo *ConnectionRepository) UpgradeProtocol(c echo.Context) (conn *websocket.Conn, err error) {
-	conn, err = repo.server.Upgrader.Upgrade(c.Response(), c.Request(), nil)
+func (repo *ConnectionRepository) UpgradeProtocol(c echo.Context) (client entity.ClientInterface, err error) {
+	conn, err := repo.server.Upgrader.Upgrade(c.Response(), c.Request(), nil)
+	client = infrastructure.NewClient(conn)
 	return
 }
 
-func (repo *ConnectionRepository) AddClient(conn *websocket.Conn) {
+func (repo *ConnectionRepository) AddClient(client entity.ClientInterface) {
 	repo.server.Mutex.Lock()
-	repo.server.Clients[conn] = true
+	repo.server.Clients[client] = true
 	repo.server.Mutex.Unlock()
 }
 
-func (repo *ConnectionRepository) RemoveClient(conn *websocket.Conn) {
+func (repo *ConnectionRepository) RemoveClient(client entity.ClientInterface) {
 	repo.server.Mutex.Lock()
-	delete(repo.server.Clients, conn)
+	delete(repo.server.Clients, client)
 	repo.server.Mutex.Unlock()
 }
 
-func (repo *ConnectionRepository) HandleMessage(conn *websocket.Conn) (err error) {
-	_, message, err := conn.ReadMessage()
+func (repo *ConnectionRepository) HandleMessage(client entity.ClientInterface) (err error) {
+	message, err := client.ReadMessage()
 	if err != nil {
 		log.Printf("Error reading message: %v", err)
 		return
 	}
 	log.Printf("Received message: %s", message)
-	repo.server.BroadcastMessage(conn, string(message))
+	repo.server.BroadcastMessage(client, string(message))
 	return
 }
