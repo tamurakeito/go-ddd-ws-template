@@ -4,6 +4,7 @@ import (
 	"errors"
 	mocks_entity "go-ddd-ws-template/mocks/entity"
 	mocks_repository "go-ddd-ws-template/mocks/repository"
+	"go-ddd-ws-template/src/domain"
 	"go-ddd-ws-template/src/domain/repository"
 	"reflect"
 	"testing"
@@ -58,7 +59,7 @@ func Test_connectionUsecase_HandleConnection(t *testing.T) {
 
 			mockConnectionRepo.EXPECT().UpgradeProtocol(c).Return(mockClient, nil)
 			mockConnectionRepo.EXPECT().AddClient(mockClient)
-			mockConnectionRepo.EXPECT().HandleMessage(mockClient).Return(errors.New("client disconnected")) // ループを終了させる
+			mockConnectionRepo.EXPECT().HandleMessage(mockClient).Return(domain.EOF) // ループを終了させる
 			mockConnectionRepo.EXPECT().RemoveClient(mockClient)
 			mockClient.EXPECT().Close().Return(nil)
 
@@ -70,7 +71,7 @@ func Test_connectionUsecase_HandleConnection(t *testing.T) {
 				args: args{
 					c: c,
 				},
-				wantErr: ErrHandleMessage,
+				wantErr: nil,
 			}
 		}(),
 		func() test {

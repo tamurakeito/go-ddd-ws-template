@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"errors"
+	"go-ddd-ws-template/src/domain"
 	"go-ddd-ws-template/src/domain/repository"
 	"log"
 
@@ -44,6 +46,9 @@ func (u *connectionUsecase) HandleConnection(c echo.Context) error {
 	u.connectionRepo.RemoveClient(client)
 	log.Println("Client disconnected")
 	if err != nil {
+		if errors.Is(err, domain.EOF) {
+			return nil
+		}
 		return ErrHandleMessage
 	} else {
 		return nil
